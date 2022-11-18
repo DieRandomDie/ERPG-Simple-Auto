@@ -57,11 +57,12 @@ while True:
     event = receive_json_response(ws)
 
     try:
-        if text.parse(event):
-            break
-        else:
-            op_code = event['op']
+        text.parse(event)
+        op_code = event['op']
         if op_code == 11:
             print("Heartbeat received")
+    except websocket.WebSocketConnectionClosedException as e:
+        ws = websocket.WebSocket()
+        ws.connect('wss://gateway.discord.gg/?v=6&encoding=json')
     except:
         pass
