@@ -2,6 +2,7 @@ import time
 from pyautogui import press, typewrite
 
 cmd = ["hunt t", "chop", ""]
+paused = False
 
 
 def text_to_seconds(text):
@@ -46,7 +47,8 @@ def area_check(area):
         f = "farm"
     if area >= 13:
         h = "hunt t h"
-    print("Hunt: ", h, "\nWork: ", w, "\nFarm: ", f)
+    
+    print("Set area to", area)
     return [h, w, f]
 
 
@@ -88,7 +90,8 @@ def daily():
 
 def parse(event):
     global cmd
-    if event['d']['guild_id'] == '1008332353686483016':
+    global paused
+    if event['d']['guild_id'] == '1008332353686483016' and not paused:
         if event['d']['author']['username'] == "Navi":
             if "/hunt" in event['d']['content']:
                 hunt()
@@ -105,9 +108,17 @@ def parse(event):
         if event['d']['author']['username'] == "DieRandomDie":
             if "set area" in event['d']['content']:
                 cmd = area_check(event['d']['content'].split()[-1])
-                print(cmd)
             if "set seed" in event['d']['content']:
                 cmd[2] = "farm " + event['d']['content'].split()[-1]
             if "stop auto" in event['d']['content']:
                 print("Received kill command. Stopping autos.")
-                return 1
+                typewrite("stopped")
+                press('enter')
+                paused = True
+    if event['d']['guild_id'] == '1008332353686483016' and paused:
+        if event['d']['author']['username'] == "DieRandomDie":
+            if "start auto" in event['d']['content']:
+                print("Received resume command. Starting autos.")
+                typewrite("starting")
+                press('enter')
+                paused = False
